@@ -12,7 +12,9 @@ import (
 	"io"
 	"math/rand"
 	"os"
+	"reflect"
 	"time"
+	"unsafe"
 )
 
 // 计算string的md5值，以32位字符串形式返回
@@ -132,14 +134,14 @@ func RandomString(m, n int) string {
 	return s
 }
 
-// BigEndian
+// BigEndian: uint32 --> []byte
 func Uint32ToBytes(v uint32) []byte {
 	var b = make([]byte, 4)
 	binary.BigEndian.PutUint32(b, v)
 	return b
 }
 
-// BigEndian
+// BigEndian: int32 --> []byte
 func Int32ToBytes(v int32) []byte {
 	b := make([]byte, 4)
 	b[0] = byte(v >> 24)
@@ -149,12 +151,19 @@ func Int32ToBytes(v int32) []byte {
 	return b
 }
 
-// BigEndian
+// BigEndian: []byte --> uint32
 func BytesToUint32(b []byte) uint32 {
 	return binary.BigEndian.Uint32(b)
 }
 
-// BigEndian
+// BigEndian: []byte -->int32
 func BytesToInt32(b []byte) int32 {
 	return int32(b[3]) | int32(b[2])<<8 | int32(b[1])<<16 | int32(b[0])<<24
+}
+
+// 不需要拷贝即可返回字符串 *s 的 byte slice，但是不能对返回的byte slice做任何修改，否则panic
+func StringToByteSlice(s *string) []byte {
+	sh := (*reflect.SliceHeader)(unsafe.Pointer(s))
+	sh.Cap = sh.Len
+	return *(*[]byte)(unsafe.Pointer(sh))
 }
