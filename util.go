@@ -6,6 +6,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/md5"
+	"encoding/binary"
 	"encoding/hex"
 	"hash"
 	"io"
@@ -63,8 +64,7 @@ func readFile(name string, h hash.Hash) error {
 
 // AES是对称加密算法
 // Key长度：16, 24, 32 bytes 对应 AES-128, AES-192, AES-256
-// 下面使用CBC加密模式和PKCS5Padding填充法
-
+// 这里使用CBC加密模式和PKCS5Padding填充法
 // AES加密，传入的plaintext会被重写为ciphertext，plaintext不可再利用
 func AesEncrypt(plaintext, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
@@ -130,4 +130,31 @@ func RandomString(m, n int) string {
 	}
 
 	return s
+}
+
+// BigEndian
+func Uint32ToBytes(v uint32) []byte {
+	var b = make([]byte, 4)
+	binary.BigEndian.PutUint32(b, v)
+	return b
+}
+
+// BigEndian
+func Int32ToBytes(v int32) []byte {
+	b := make([]byte, 4)
+	b[0] = byte(v >> 24)
+	b[1] = byte(v >> 16)
+	b[2] = byte(v >> 8)
+	b[3] = byte(v)
+	return b
+}
+
+// BigEndian
+func BytesToUint32(b []byte) uint32 {
+	return binary.BigEndian.Uint32(b)
+}
+
+// BigEndian
+func BytesToInt32(b []byte) int32 {
+	return int32(b[3]) | int32(b[2])<<8 | int32(b[1])<<16 | int32(b[0])<<24
 }

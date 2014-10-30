@@ -31,6 +31,17 @@ func TestUtils(t *testing.T) {
 	// aes
 	testAES([]byte("hello你好，这是一个AES加密测试"), []byte("0123456789123456"), t)
 	testAES([]byte("hello你好，这是另一个AES加密测试"), []byte("01234567891234560123456789123456"), t)
+
+	// BigEndian convert
+	if !bytes.Equal(Int32ToBytes(34567), Uint32ToBytes(34567)) {
+		t.Fatal()
+	}
+
+	b = Int32ToBytes(345345)
+	if BytesToInt32(b) != 345345 {
+		t.Fatal()
+	}
+
 }
 
 func testAES(text, key []byte, t *testing.T) {
