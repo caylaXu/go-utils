@@ -81,8 +81,8 @@ func (rwm *RWMutexMap) Get(i int) bool {
 	return rwm.mp[i]
 }
 
-const N = 50
-const M = 1000000
+const N = 5000
+const M = 1000
 
 func TestSpinLock(t *testing.T) {
 	waitGroup := &sync.WaitGroup{}

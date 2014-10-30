@@ -1,7 +1,13 @@
 //
-// 旋转锁
-// 不需要进行上下文切换，而mutex要进行上下文切换
-// 根据测试，大部分情况下，spinlock的效率要略高于mutex
+// 自旋锁
+// 调用spinslock的线程如果无法获取锁，则一直等待，并不会睡眠  -- 用户态
+// 调用mutex lock的线程如果无法获取锁，则会进入睡眠状态，让出cpu时间片  -- 内核态
+// 根据测试：
+// 在开启runtime.GOMAXPROCS(runtime.NumCPU())的情况下：
+// 4核：spinlock的性能大概是mutex 的2倍
+//
+// 没开启runtime.GOMAXPROCS(runtime.NumCPU())，也就是单核的情况下，mutex的性能略高，
+// 并且在该测试程序中 两者的性能 都优于 上面的多核(4核)
 //
 
 package spinlock
@@ -17,7 +23,10 @@ type SpinLock struct {
 
 func (s *SpinLock) Lock() {
 	for !s.TryLock() {
-		runtime.Gosched() // 放弃本时间片(http://golang.org/pkg/runtime/#Gosched)
+		// 放弃本时间片(http://golang.org/pkg/runtime/#Gosched)
+		// Gosched yields the processor, allowing other goroutines to run.
+		// It does not suspend the current goroutine, so execution resumes automatically.
+		runtime.Gosched()
 	}
 }
 
@@ -27,4 +36,8 @@ func (s *SpinLock) Unlock() {
 
 func (s *SpinLock) TryLock() bool {
 	return atomic.CompareAndSwapInt32(&s.flag, 0, 1)
+}
+
+func init() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
 }
