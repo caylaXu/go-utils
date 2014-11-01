@@ -1,5 +1,5 @@
 //
-// 线程安全的map
+// The thread safe of map
 //
 
 package safemap
@@ -13,6 +13,7 @@ type SafeMap struct {
 	mp   map[interface{}]interface{}
 }
 
+// Return new safemap
 func New() *SafeMap {
 	return &SafeMap{
 		lock: new(sync.RWMutex),
@@ -20,7 +21,7 @@ func New() *SafeMap {
 	}
 }
 
-// 返回 key 对应的 value
+// Return the key's value
 func (this *SafeMap) Get(key interface{}) interface{} {
 	this.lock.RLock()
 	defer this.lock.RUnlock()
@@ -30,14 +31,14 @@ func (this *SafeMap) Get(key interface{}) interface{} {
 	return nil
 }
 
-// 设置 (key, value)
+// Set (key --> value)
 func (this *SafeMap) Set(key, value interface{}) {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	this.mp[key] = value
 }
 
-// 判断 key 是否存在
+// Return true if key is exist in the safemap
 func (this *SafeMap) IsExist(key interface{}) bool {
 	this.lock.RLock()
 	defer this.lock.RUnlock()
@@ -45,21 +46,21 @@ func (this *SafeMap) IsExist(key interface{}) bool {
 	return ok
 }
 
-// 删除 key
+// Delete (key --> value)
 func (this *SafeMap) Delete(key interface{}) {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	delete(this.mp, key)
 }
 
-// 返回 safemap 的大小
+// Return the size of safemap
 func (this *SafeMap) Size() int {
 	this.lock.RLock()
 	defer this.lock.RUnlock()
 	return len(this.mp)
 }
 
-// 返回 safemap 中所有元素
+// Return all items of safemap
 func (this *SafeMap) Items() map[interface{}]interface{} {
 	this.lock.RLock()
 	defer this.lock.RUnlock()
