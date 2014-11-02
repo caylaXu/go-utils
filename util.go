@@ -114,6 +114,7 @@ func PKCS5UnPadding(b []byte) []byte {
 
 // 得到一个长度在区间[m, n]内的随机字符串，字母为小写[a, z]
 func RandomString(m, n int) string {
+	rand.Seed(time.Now().UnixNano())
 	num := 0
 	if m < n {
 		num = rand.Intn(n-m) + m
@@ -121,17 +122,14 @@ func RandomString(m, n int) string {
 		num = m
 	}
 
-	var (
-		s string
-		a rune = 'a'
-	)
+	bytes := make([]byte, num)
+	const alphabet = "abcdefghijklmnopqrstuvwxyz"
 
-	for i := 0; i < num; i++ {
-		c := a + rune(rand.Intn(26))
-		s = s + string(c)
+	for i, _ := range bytes {
+		bytes[i] = alphabet[rand.Intn(26)]
 	}
 
-	return s
+	return string(bytes)
 }
 
 // BigEndian: uint32 --> []byte
